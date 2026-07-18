@@ -1,0 +1,12 @@
+# Database files
+database.json
+sim_time.json
+*.db
+
+# Python compilation artifacts
+__pycache__/
+*.pyc
+
+# Local backup/debit card assets
+bank_card_*.png
+bank_card_*.json
