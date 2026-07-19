@@ -1,4 +1,4 @@
-# Python Banking Management System (Flask Web Application)
+# Mooserage Banking System Simulation (Flask Web Application)
 
 A visually stunning, modern, and modular console-and-web banking management system built in Python 3.11+ using Flask. The project integrates secure authentication, client-side QR Code card display, HTML5 camera-based login scanning, automated transaction histories, educational inflation simulations, and an admin statistics dashboard.
 
@@ -76,6 +76,7 @@ To maintain a clean and secure ATM experience, the default dashboard path `/` di
 
 - **Register Account**: [`http://127.0.0.1:5000/register`](http://127.0.0.1:5000/register)
 - **Administrator Panel**: [`http://127.0.0.1:5000/admin`](http://127.0.0.1:5000/admin)
+- **Ledger Blockchain Explorer**: [`http://127.0.0.1:5000/database`](http://127.0.0.1:5000/database)
 
 ---
 

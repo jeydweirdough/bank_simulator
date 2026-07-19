@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Python National Bank - Web Portal</title>
+    <title>Mooserage Banking System - Web Portal</title>
     <!-- Google Fonts Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- FontAwesome for icons -->
@@ -647,6 +647,59 @@
             0%, 100% { transform: translateY(0); }
             50% { transform: translateY(-10px); }
         }
+
+        /* Responsive ATM menu grid */
+        .atm-menu-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        /* Mobile specific styling adjustments */
+        @media (max-width: 600px) {
+            .atm-menu-grid {
+                grid-template-columns: 1fr !important;
+                gap: 10px !important;
+            }
+
+            .atm-wrapper {
+                padding: 10px !important;
+                border-width: 4px !important;
+            }
+
+            .atm-screen {
+                padding: 12px !important;
+                min-height: 350px !important;
+            }
+
+            .atm-btn {
+                padding: 12px 14px !important;
+                font-size: 0.85rem !important;
+            }
+
+            body {
+                padding: 20px 10px !important;
+            }
+
+            .glass-panel {
+                padding: 16px !important;
+            }
+
+            .brand-header h1 {
+                font-size: 1.4rem !important;
+            }
+
+            .atm-title {
+                font-size: 1.05rem !important;
+                margin-bottom: 12px !important;
+            }
+
+            .atm-screen table th, 
+            .atm-screen table td {
+                font-size: 0.7rem !important;
+                padding: 4px 2px !important;
+            }
+        }
     </style>
 </head>
 <body>
@@ -658,7 +711,7 @@
         <!-- APP BRANDING -->
         <div class="brand-header">
             <i class="fa-solid fa-building-columns"></i>
-            <h1>PYTHON NATIONAL BANK</h1>
+            <h1>MOOSERAGE BANKING SYSTEM SIMULATION</h1>
         </div>
 
         <!-- ================= AUTHENTICATION PANEL ================= -->
@@ -1250,12 +1303,12 @@
             atmState = "MAIN_MENU";
             const screen = document.getElementById('atm-screen-element');
             screen.innerHTML = `
-                <div class="atm-title">PYTHON NATIONAL BANK</div>
+                <div class="atm-title">MOOSERAGE BANKING SYSTEM</div>
                 <div style="text-align: center; margin-bottom: 20px; font-size: 0.9rem; color: #88ff88;">
                     WELCOME, ${atmOwnerName.toUpperCase()}<br>
                     CARD: ${formatCardNumber(atmCardNumber)}
                 </div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div class="atm-menu-grid">
                     <button class="atm-btn" onclick="selectAtmAction('balance')"><span>1. BALANCE INQUIRY</span> <i class="fa-solid fa-chevron-right"></i></button>
                     <button class="atm-btn" onclick="selectAtmAction('deposit')"><span>2. DEPOSIT FUNDS</span> <i class="fa-solid fa-chevron-right"></i></button>
                     <button class="atm-btn" onclick="selectAtmAction('withdraw')"><span>3. WITHDRAW FUNDS</span> <i class="fa-solid fa-chevron-right"></i></button>
@@ -1491,7 +1544,7 @@
             screen.innerHTML = `
                 <div class="atm-title">WITHDRAW FUNDS</div>
                 <p style="text-align: center; font-size: 0.9rem; color: #88ff88; margin-bottom: 20px;">SELECT WITHDRAWAL AMOUNT</p>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+                <div class="atm-menu-grid" style="margin-bottom: 20px;">
                     <button class="atm-btn" onclick="submitAtmWithdraw(20)"><span>$20</span> <i class="fa-solid fa-chevron-right"></i></button>
                     <button class="atm-btn" onclick="submitAtmWithdraw(50)"><span>$50</span> <i class="fa-solid fa-chevron-right"></i></button>
                     <button class="atm-btn" onclick="submitAtmWithdraw(100)"><span>$100</span> <i class="fa-solid fa-chevron-right"></i></button>
@@ -1755,7 +1808,7 @@
                 <div style="text-align: center; margin: 40px 0;">
                     <div style="font-size: 3rem; color: #ff8888; margin-bottom: 20px; animation: bounce 1s infinite;"><i class="fa-solid fa-credit-card"></i></div>
                     <h3 style="color: #fff; margin-bottom: 10px;">${wasLocked ? 'ACCOUNT LOCKED' : 'PLEASE TAKE YOUR CARD'}</h3>
-                    <p style="color: var(--text-muted); font-size: 0.9rem;">${wasLocked ? 'This card is retained by the bank.' : 'Thank you for banking with Python National Bank.'}</p>
+                    <p style="color: var(--text-muted); font-size: 0.9rem;">${wasLocked ? 'This card is retained by the bank.' : 'Thank you for banking with Mooserage Banking System.'}</p>
                 </div>
             `;
             
@@ -1903,7 +1956,7 @@
             // Card title
             ctx.fillStyle = '#33ff33';
             ctx.font = 'bold 16px Courier New, monospace';
-            ctx.fillText('PYTHON NATIONAL BANK', 30, 45);
+            ctx.fillText('MOOSERAGE BANK SYSTEM', 30, 45);
 
             // Card number formatted
             ctx.fillStyle = '#ffffff';

@@ -181,6 +181,20 @@ def index_register():
     return render_template("index.html", mode="register")
 
 
+@app.route("/database")
+def database_view():
+    """Render the database visualizer portal (Mooserage Blockchain Explorer)."""
+    return render_template("database.html")
+
+
+@app.route("/api/database/raw")
+def api_database_raw():
+    """Return the raw JSON database data."""
+    with db_lock:
+        data = storage.load_data()
+    return jsonify(data)
+
+
 @app.route("/api/register", methods=["POST"])
 def api_register():
     """Endpoint for registering new user accounts."""

@@ -54,7 +54,7 @@ class RobotClient:
     def run_simulation(self) -> None:
         """Main loop that executes simulated human steps and calendar steps."""
         print("==================================================")
-        print("     PYTHON BANKING SYSTEM - ROBOT CLIENT         ")
+        print("    MOOSERAGE BANKING SYSTEM - ROBOT CLIENT       ")
         print("==================================================")
         print("Status: CONNECTING TO SERVER...")
         

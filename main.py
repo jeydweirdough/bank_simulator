@@ -218,7 +218,7 @@ class BankCLI:
                 elif choice == "3":
                     self._admin_login_flow()
                 elif choice == "4":
-                    print("\nThank you for banking with Python National Bank. Goodbye!")
+                    print("\nThank you for banking with Mooserage Banking System Simulation. Goodbye!")
                     sys.exit(0)
                 else:
                     print("\nError: Invalid choice. Please select between 1 and 4.")
@@ -426,7 +426,7 @@ class BankCLI:
         """Print the bank statement in the requested format."""
         clear_screen()
         print("=================================")
-        print("Python National Bank")
+        print("Mooserage Banking System Simulation")
         print("=================================")
         print(f"Owner: {user.owner}\n")
         print(f"Card Number: {user.card_number}\n")

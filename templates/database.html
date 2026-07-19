@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mooserage Banking System - Ledger Explorer</title>
+    <!-- Google Fonts Courier-like Inter/monospace -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-color: #050811;
+            --panel-bg: #0c1220;
+            --border-color: #1f355a;
+            --crt-green: #33ff33;
+            --crt-green-dim: #158015;
+            --crt-green-glow: rgba(51, 255, 51, 0.2);
+            --crt-dark-red: #c62828;
+            --text-main: #e2e8f0;
+            --text-muted: #64748b;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Courier New', Courier, monospace;
+            border-radius: 0px !important;
+            box-shadow: none !important;
+            text-shadow: none !important;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px 20px;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Scanline CRT overlay effect */
+        body::before {
+            content: " ";
+            display: block;
+            position: fixed;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.3) 50%);
+            background-size: 100% 4px;
+            z-index: 9999;
+            pointer-events: none;
+            opacity: 0.4;
+        }
+
+        .explorer-container {
+            width: 100%;
+            max-width: 900px;
+            z-index: 10;
+        }
+
+        .header-panel {
+            background: var(--panel-bg);
+            border: 2px solid var(--border-color);
+            padding: 24px;
+            margin-bottom: 24px;
+            text-align: center;
+            position: relative;
+        }
+
+        .header-panel h1 {
+            color: var(--crt-green);
+            font-size: 1.8rem;
+            letter-spacing: 2px;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+
+        .header-panel p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .controls-panel {
+            background: var(--panel-bg);
+            border: 2px solid var(--border-color);
+            padding: 16px 24px;
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .select-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .select-wrapper label {
+            color: var(--crt-green);
+            font-weight: bold;
+        }
+
+        select {
+            background: #000;
+            color: var(--crt-green);
+            border: 1px solid var(--crt-green);
+            padding: 8px 12px;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .toggle-group {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn-toggle {
+            background: transparent;
+            color: var(--text-muted);
+            border: 1px solid var(--border-color);
+            padding: 8px 16px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s ease;
+        }
+
+        .btn-toggle.active {
+            color: #000;
+            background: var(--crt-green);
+            border-color: var(--crt-green);
+        }
+
+        .btn-toggle:hover:not(.active) {
+            border-color: var(--crt-green);
+            color: var(--crt-green);
+        }
+
+        /* LEDGER CONTENT PANELS */
+        .ledger-view {
+            width: 100%;
+        }
+
+        .raw-json-panel {
+            background: #000;
+            border: 2px solid var(--border-color);
+            padding: 24px;
+            overflow-x: auto;
+            color: var(--crt-green);
+            font-size: 0.85rem;
+            line-height: 1.5;
+            white-space: pre-wrap;
+            display: none;
+            max-height: 70vh;
+        }
+
+        /* BLOCKCHAIN MODE CLASSES */
+        .chain-flow {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+        }
+
+        .account-meta-card {
+            background: var(--panel-bg);
+            border: 2px solid var(--crt-green);
+            width: 100%;
+            padding: 20px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+        }
+
+        .account-meta-card::after {
+            content: "";
+            position: absolute;
+            bottom: -32px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-left: 2px dashed var(--crt-green);
+            height: 30px;
+            width: 0;
+        }
+
+        .meta-title {
+            color: var(--crt-green);
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin-bottom: 6px;
+        }
+
+        .meta-detail {
+            color: var(--text-main);
+            font-size: 0.9rem;
+        }
+
+        .meta-balance {
+            text-align: right;
+        }
+
+        .balance-val {
+            font-size: 1.6rem;
+            color: var(--crt-green);
+            font-weight: bold;
+        }
+
+        .block-card {
+            background: var(--panel-bg);
+            border: 2px solid var(--border-color);
+            width: 100%;
+            padding: 20px;
+            margin-bottom: 30px;
+            position: relative;
+            transition: border-color 0.3s;
+        }
+
+        .block-card:hover {
+            border-color: var(--crt-green);
+        }
+
+        .block-card.linked::after {
+            content: "";
+            position: absolute;
+            bottom: -32px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-left: 2px dashed var(--crt-green);
+            height: 30px;
+            width: 0;
+        }
+
+        .block-arrow {
+            position: absolute;
+            bottom: -22px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: var(--crt-green);
+            font-size: 1.2rem;
+            z-index: 10;
+        }
+
+        .block-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+            margin-bottom: 12px;
+        }
+
+        .block-type {
+            font-weight: bold;
+            font-size: 1.05rem;
+            color: var(--crt-green);
+            text-transform: uppercase;
+        }
+
+        .block-id {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        .block-body {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .block-field {
+            margin-bottom: 8px;
+        }
+
+        .field-label {
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        .field-value {
+            font-size: 0.95rem;
+            color: var(--text-main);
+        }
+
+        .field-value.amount-plus {
+            color: var(--crt-green);
+            font-weight: bold;
+        }
+
+        .field-value.amount-minus {
+            color: #ef4444;
+            font-weight: bold;
+        }
+
+        .block-hashes {
+            background: #020408;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+        }
+
+        .hash-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            margin-bottom: 6px;
+        }
+
+        .hash-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .hash-label {
+            color: var(--text-muted);
+            font-weight: bold;
+        }
+
+        .hash-val {
+            color: var(--text-main);
+            word-break: break-all;
+            margin-left: 10px;
+            font-family: monospace;
+        }
+
+        .hash-match {
+            color: var(--crt-green);
+        }
+
+        .hash-mismatch {
+            color: #ef4444;
+        }
+
+        .no-data-alert {
+            background: var(--panel-bg);
+            border: 2px dashed var(--border-color);
+            padding: 40px;
+            text-align: center;
+            color: var(--text-muted);
+            width: 100%;
+        }
+
+        .no-data-alert i {
+            font-size: 3rem;
+            color: var(--border-color);
+            margin-bottom: 16px;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #000;
+            border: 1px solid var(--crt-green);
+            color: var(--crt-green);
+            padding: 12px 24px;
+            font-size: 0.9rem;
+            z-index: 1000;
+            display: none;
+        }
+
+        /* Glowing status dots */
+        .status-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: var(--crt-green);
+            box-shadow: 0 0 6px var(--crt-green);
+            margin-right: 8px;
+        }
+
+        /* Mobile specific media queries */
+        @media (max-width: 600px) {
+            body {
+                padding: 20px 10px !important;
+            }
+
+            .header-panel {
+                padding: 16px !important;
+                margin-bottom: 16px !important;
+            }
+
+            .header-panel h1 {
+                font-size: 1.3rem !important;
+            }
+
+            .controls-panel {
+                flex-direction: column !important;
+                align-items: stretch !important;
+                padding: 12px 16px !important;
+                gap: 12px !important;
+            }
+
+            .select-wrapper {
+                flex-direction: column !important;
+                align-items: flex-start !important;
+                gap: 6px !important;
+            }
+
+            select {
+                width: 100% !important;
+            }
+
+            .toggle-group {
+                width: 100% !important;
+                justify-content: space-between !important;
+            }
+
+            .btn-toggle {
+                flex: 1 !important;
+                text-align: center !important;
+                padding: 8px 8px !important;
+                font-size: 0.75rem !important;
+            }
+
+            .account-meta-card {
+                flex-direction: column !important;
+                align-items: flex-start !important;
+                padding: 14px !important;
+                gap: 12px !important;
+            }
+
+            .meta-balance {
+                text-align: left !important;
+                width: 100% !important;
+                border-top: 1px solid var(--border-color) !important;
+                padding-top: 10px !important;
+            }
+
+            .balance-val {
+                font-size: 1.3rem !important;
+            }
+
+            .block-card {
+                padding: 14px !important;
+            }
+
+            .block-body {
+                grid-template-columns: 1fr !important;
+                gap: 10px !important;
+            }
+
+            .block-field {
+                margin-bottom: 4px !important;
+            }
+
+            .hash-row {
+                flex-direction: column !important;
+                align-items: flex-start !important;
+                gap: 4px !important;
+            }
+
+            .hash-val {
+                margin-left: 0 !important;
+                word-break: break-all !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="explorer-container">
+        
+        <!-- Header -->
+        <div class="header-panel">
+            <h1>Mooserage Banking System</h1>
+            <p>Ledger Database & Transaction Chain Explorer</p>
+        </div>
+
+        <!-- Controls -->
+        <div class="controls-panel">
+            <div class="select-wrapper">
+                <label for="account-select">Select Account:</label>
+                <select id="account-select" onchange="onAccountChange()">
+                    <option value="">Loading accounts...</option>
+                </select>
+            </div>
+            
+            <div style="font-size: 0.85rem; color: var(--text-muted); display: flex; align-items: center;">
+                <span class="status-dot"></span> Live Syncing
+            </div>
+
+            <div class="toggle-group">
+                <button id="btn-blockchain" class="btn-toggle active" onclick="switchView('blockchain')">BLOCKCHAIN LEDGER</button>
+                <button id="btn-raw" class="btn-toggle" onclick="switchView('raw')">RAW DATABASE JSON</button>
+            </div>
+        </div>
+
+        <!-- Content Area -->
+        <div class="ledger-view">
+            
+            <!-- Raw JSON View -->
+            <pre id="raw-json-panel" class="raw-json-panel"></pre>
+
+            <!-- Visual Blockchain View -->
+            <div id="blockchain-panel" class="chain-flow">
+                <!-- Dynamically populated -->
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="toast">Database updated.</div>
+
+    <script>
+        let rawDatabase = {};
+        let currentAccountCard = "";
+        let activeView = "blockchain"; // "blockchain" or "raw"
+        let previousHashCheck = {};
+
+        // Fetch database content
+        async function fetchDatabase() {
+            try {
+                const response = await fetch('/api/database/raw');
+                const data = await response.json();
+                
+                // Compare to detect changes
+                const dataChanged = JSON.stringify(rawDatabase) !== JSON.stringify(data);
+                
+                rawDatabase = data;
+
+                if (dataChanged) {
+                    updateAccountDropdown();
+                    renderView();
+                    if (Object.keys(rawDatabase).length > 0 && rawDatabase.accounts) {
+                        showToast();
+                    }
+                }
+            } catch (err) {
+                console.error("Failed to sync database:", err);
+            }
+        }
+
+        function showToast() {
+            const toast = document.getElementById('toast');
+            toast.style.display = 'block';
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 1500);
+        }
+
+        // Populate accounts list dropdown
+        function updateAccountDropdown() {
+            const select = document.getElementById('account-select');
+            const accounts = rawDatabase.accounts || {};
+            const cardNumbers = Object.keys(accounts);
+
+            // Preserve selected card
+            const oldSelected = select.value;
+            select.innerHTML = "";
+
+            if (cardNumbers.length === 0) {
+                const opt = document.createElement('option');
+                opt.value = "";
+                opt.textContent = "No accounts registered";
+                select.appendChild(opt);
+                currentAccountCard = "";
+                return;
+            }
+
+            cardNumbers.forEach(card => {
+                const opt = document.createElement('option');
+                opt.value = card;
+                opt.textContent = `${accounts[card].owner} (${formatCardNum(card)})`;
+                select.appendChild(opt);
+            });
+
+            if (cardNumbers.includes(oldSelected)) {
+                select.value = oldSelected;
+                currentAccountCard = oldSelected;
+            } else {
+                select.selectedIndex = 0;
+                currentAccountCard = select.value;
+            }
+        }
+
+        function formatCardNum(card) {
+            return card.replace(/(\d{4})/g, '$1 ').trim();
+        }
+
+        function onAccountChange() {
+            currentAccountCard = document.getElementById('account-select').value;
+            renderView();
+        }
+
+        function switchView(view) {
+            activeView = view;
+            document.getElementById('btn-blockchain').className = `btn-toggle ${view === 'blockchain' ? 'active' : ''}`;
+            document.getElementById('btn-raw').className = `btn-toggle ${view === 'raw' ? 'active' : ''}`;
+
+            if (view === 'raw') {
+                document.getElementById('raw-json-panel').style.display = 'block';
+                document.getElementById('blockchain-panel').style.display = 'none';
+            } else {
+                document.getElementById('raw-json-panel').style.display = 'none';
+                document.getElementById('blockchain-panel').style.display = 'flex';
+            }
+            renderView();
+        }
+
+        // Render current selected view
+        function renderView() {
+            // Render Raw JSON
+            document.getElementById('raw-json-panel').textContent = JSON.stringify(rawDatabase, null, 4);
+
+            // Render Blockchain View
+            const blockchainPanel = document.getElementById('blockchain-panel');
+            blockchainPanel.innerHTML = "";
+
+            const accounts = rawDatabase.accounts || {};
+            if (!currentAccountCard || !accounts[currentAccountCard]) {
+                blockchainPanel.innerHTML = `
+                    <div class="no-data-alert">
+                        <i class="fa-solid fa-database"></i>
+                        <p>No registered accounts to display. Use the user registration route to create an account.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const acc = accounts[currentAccountCard];
+
+            // Render account meta header
+            const metaHtml = `
+                <div class="account-meta-card">
+                    <div>
+                        <div class="meta-title">${acc.owner.toUpperCase()}</div>
+                        <div class="meta-detail">Card Number: ${formatCardNum(currentAccountCard)}</div>
+                        <div class="meta-detail">Interest Rate: ${(acc.interest_rate * 100).toFixed(1)}% APY</div>
+                    </div>
+                    <div class="meta-balance">
+                        <div class="field-label">Current Balance</div>
+                        <div class="balance-val">$${acc.balance.toFixed(2)}</div>
+                    </div>
+                </div>
+            `;
+            blockchainPanel.innerHTML += metaHtml;
+
+            const transactions = acc.transactions || [];
+            if (transactions.length === 0) {
+                blockchainPanel.innerHTML += `
+                    <div class="no-data-alert" style="margin-top: 10px;">
+                        <i class="fa-solid fa-link-slash"></i>
+                        <p>No transactions registered for this account chain.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Render blocks sequentially
+            transactions.forEach((tx, idx) => {
+                const isLast = idx === transactions.length - 1;
+                const isLinked = idx < transactions.length - 1;
+                
+                // Determine transaction color class
+                let amtClass = "";
+                let amtSign = "";
+                if (tx.type.toLowerCase().includes("deposit") || tx.type.toLowerCase().includes("interest") || tx.type.toLowerCase().includes("creation")) {
+                    amtClass = "amount-plus";
+                    amtSign = "+";
+                } else {
+                    amtClass = "amount-minus";
+                    amtSign = "-";
+                }
+
+                // Verify block link hash
+                let hashMatch = true;
+                if (idx > 0) {
+                    const prevTx = transactions[idx - 1];
+                    hashMatch = tx.previous_hash === prevTx.hash;
+                }
+
+                const blockHtml = `
+                    <div class="block-card ${isLinked ? 'linked' : ''}">
+                        <div class="block-header">
+                            <span class="block-type">${tx.type}</span>
+                            <span class="block-id">Block #${tx.id}</span>
+                        </div>
+                        <div class="block-body">
+                            <div>
+                                <div class="block-field">
+                                    <div class="field-label">Timestamp</div>
+                                    <div class="field-value">${tx.timestamp}</div>
+                                </div>
+                                <div class="block-field">
+                                    <div class="field-label">Partner Account</div>
+                                    <div class="field-value">${tx.partner_card ? formatCardNum(tx.partner_card) : 'None'}</div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="block-field">
+                                    <div class="field-label">Transaction Amount</div>
+                                    <div class="field-value ${amtClass}">${amtSign}$${Math.abs(tx.amount).toFixed(2)}</div>
+                                </div>
+                                <div class="block-field">
+                                    <div class="field-label">Post Balance</div>
+                                    <div class="field-value">$${tx.balance.toFixed(2)}</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="block-hashes">
+                            <div class="hash-row">
+                                <span class="hash-label">Prev Hash:</span>
+                                <span class="hash-val ${idx > 0 ? (hashMatch ? 'hash-match' : 'hash-mismatch') : ''}">
+                                    ${tx.previous_hash}
+                                </span>
+                            </div>
+                            <div class="hash-row">
+                                <span class="hash-label">Block Hash:</span>
+                                <span class="hash-val">${tx.hash}</span>
+                            </div>
+                        </div>
+                        ${isLinked ? `
+                            <div class="block-arrow">
+                                <i class="fa-solid fa-arrow-down-long"></i>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+                blockchainPanel.innerHTML += blockHtml;
+            });
+        }
+
+        // Initial sync
+        fetchDatabase();
+
+        // Polling sync interval every 3 seconds
+        setInterval(fetchDatabase, 3000);
+    </script>
+</body>
+</html>
