@@ -1,85 +1,94 @@
 # Mooserage Banking System Simulation (Flask Web Application)
 
-A visually stunning, modern, and modular console-and-web banking management system built in Python 3.11+ using Flask. The project integrates secure authentication, client-side QR Code card display, HTML5 camera-based login scanning, automated transaction histories, educational inflation simulations, and an admin statistics dashboard.
+A banking system simulation built with Python (Flask) that demonstrates account management, authentication, money transfers, transaction history, and an admin dashboard. The project also includes QR code-based login, a simple banking interface, and a robot client that simulates user transactions.
 
 ---
 
 ## Features
 
-- **Premium Responsive Interface**: Glassmorphism dark-mode UI with floating animated glow background lights and glowing status badges.
-- **QR Code Card Generation**: Automatically renders a card QR code on the user's dashboard (powered by `qrious.js` via CDN).
-- **Webcam QR Login Scanner**: Features camera card scanning (powered by `jsQR.js` via CDN). Clicking "Scan QR to Login" mirrors the webcam feed, decodes the card number, focuses the PIN field, and plays a success audio tone.
-- **REST JSON API Backend**: Integrates REST routes for balances, registration, logins, wire transfers, statistics, interest batches, and databases.
-- **Stateless Concurrency Lock**: Employs `threading.Lock` to serialise database updates between web sessions and socket clients.
-- **Automated Client Simulator**: Integrates `robot_tester.py` as a client. It creates robot accounts, deposits, wires funds, and increments calendar dates, which update the web dashboard dynamically in real time.
-- **Admin Dashboard**: View metrics, search registered accounts, unlock lockouts, trigger fee/interest batches, and run database backups/restores.
+- User registration and login
+- QR code generation for account cards
+- QR code login using a webcam
+- Deposit, withdrawal, and money transfer functions
+- Transaction history for each account
+- Admin dashboard for viewing accounts and system statistics
+- Database backup and restore
+- Robot client that automatically creates accounts and performs transactions for testing
+- REST API for banking operations
 
 ---
 
 ## Folder Structure
 
-```
+```text
 .
 ├── templates/
-│   └── index.html      # Responsive Glassmorphic Web Frontend
-├── app.py              # Flask Web Server & daemon TCP Socket Server
-├── robot_tester.py     # Robot Client Transaction Simulator
-├── auth.py             # User & Admin Authentication Session Manager
-├── accounts.py         # Account Entity Model
-├── banking.py          # Core Financial Logic (deposits, transfers, interest)
-├── transactions.py     # Transaction Log Dataclass
-├── storage.py          # Database I/O Layer (atomic writes, backups)
-├── utils.py            # Input Prompts, Validations, and Clock Offsets
-├── constants.py        # Configuration Constants (admin login, path variables)
-├── database.json       # active account registry (JSON Database)
-├── Pipfile             # Pipenv dependency manifest
-├── Pipfile.lock        # Pipenv dependency lock
-└── README.md           # Project Documentation
+│   └── index.html      # Web interface
+├── app.py              # Flask application
+├── robot_tester.py     # Transaction simulator
+├── auth.py             # Authentication
+├── accounts.py         # Account model
+├── banking.py          # Banking functions
+├── transactions.py     # Transaction records
+├── storage.py          # Database handling
+├── utils.py            # Helper functions
+├── constants.py        # Configuration
+├── database.json       # JSON database
+├── Pipfile             # Dependencies
+├── Pipfile.lock
+└── README.md
 ```
 
 ---
 
-## Installation & How to Run
+## Installation
 
 ### Requirements
-- Python 3.11 or higher installed on your system.
-- `pipenv` package manager (`pip install pipenv`).
 
-### Environment Setup
-1. Open your terminal in the project directory.
-2. Install dependencies and activate the virtual environment using `pipenv`:
-   ```bash
-   pipenv install
-   ```
+- Python 3.11 or later
+- Pipenv
 
-### Running the Application
+Install dependencies:
 
-To run the application, you need to launch the server and, optionally, the simulator client in separate terminals:
-
-1. **Terminal 1 (Flask Web Server)**:
-   ```bash
-   pipenv run python app.py
-   ```
-   Open your browser and navigate to: **`http://127.0.0.1:5000`**
-
-2. **Terminal 2 (Robot Client Simulator)**:
-   ```bash
-   pipenv run python robot_tester.py
-   ```
-   Observe simulated users registering and transferring money, which dynamically reflects on your web dashboard.
+```bash
+pipenv install
+```
 
 ---
 
-## Portal Routing (Hidden Routes)
+## Running the Project
 
-To maintain a clean and secure ATM experience, the default dashboard path `/` displays only the debit card reader slot. Administrative operations and user registration forms are hidden from general view and must be accessed via specific URLs:
+Start the Flask server:
 
-- **Register Account**: [`http://127.0.0.1:5000/register`](http://127.0.0.1:5000/register)
-- **Administrator Panel**: [`http://127.0.0.1:5000/admin`](http://127.0.0.1:5000/admin)
-- **Ledger Blockchain Explorer**: [`http://127.0.0.1:5000/database`](http://127.0.0.1:5000/database)
+```bash
+pipenv run python app.py
+```
+
+Open your browser and go to:
+
+```
+http://127.0.0.1:5000
+```
+
+To run the transaction simulator in another terminal:
+
+```bash
+pipenv run python robot_tester.py
+```
 
 ---
 
-## Default Admin Credentials
-- **Username**: `admin`
-- **Password**: `admin123`
+## Routes
+
+- `/` - Login page
+- `/register` - Register a new account
+- `/admin` - Admin dashboard
+- `/database` - View stored account data
+
+---
+
+## Default Admin Account
+
+**Username:** `admin`
+
+**Password:** `admin123`
