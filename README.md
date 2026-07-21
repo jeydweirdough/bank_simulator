@@ -92,3 +92,7 @@ pipenv run python robot_tester.py
 **Username:** `admin`
 
 **Password:** `admin123`
+
+## License
+
+This project is licensed under the MIT License. See the `LICENSE` file for more information.
